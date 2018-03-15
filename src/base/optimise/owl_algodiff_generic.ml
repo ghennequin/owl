@@ -94,7 +94,7 @@ module Make
     | Add_Row_C_D   of t * t * int
     | Get_Row_D     of t * int
     | Of_Rows_D     of t array
-    | Init_2d_D     of t array
+    | Init_2d_D     of (t array array * int * int)
     | Concat_D_D    of t * t * int
     | Concat_D_C    of t * t * int
     | Concat_C_D    of t * t * int
@@ -899,20 +899,21 @@ module Make
       | _                  -> error_uniop "of_rows a.(0)" a.(0)
 
 
-    and init shape f =
-      let n_total = Array.fold_left (fun accu i -> Pervasives.(accu * i)) 1 shape in
-      let a = Array.init n_total f in
-      match a.(0) with
-      | F _                 -> a |> Array.map unpack_flt |> (fun v -> A.init shape (Array.get v)) |> pack_arr
+    and init_2d n m f =
+      let map_2d f = Array.map (Array.map f) in
+      let reshape_2d x = A.init [| n; m |] (fun k -> Pervasives.(x.(k/m).(k mod m))) in
+      let a = Array.init n (fun i -> let fi = f i in Array.init m (fun j -> fi j)) in
+      match a.(0).(0) with
+      | F _                 -> a |> map_2d unpack_flt |> reshape_2d |> pack_arr
       | DF (_, _, ai)       ->
-        let ap = a |> Array.map primal |> Array.map unpack_flt |> (fun v -> A.init shape (Array.get v)) |> pack_arr in
-        let at = a |> Array.map tangent |> Array.map unpack_flt |> (fun v -> A.init shape (Array.get v)) |> pack_arr in
+        let ap = a |> map_2d primal |> map_2d unpack_flt |> reshape_2d |> pack_arr in
+        let at = a |> map_2d tangent |> map_2d unpack_flt |> reshape_2d |> pack_arr in
+        (* NOTE: @Liang: should it be adjval instead of tangent in the line above ?? *) 
         DF (ap, at, ai)
       | DR (_, _, _, _, ai) ->
-        let cp = a |> Array.map primal |> Array.map unpack_flt |> (fun v -> A.init shape (Array.get v)) |> pack_arr in
-        DR (cp, ref (zero cp), Init_2d_D a, ref 0, ai)
-      | _                  -> error_uniop "init_2d a.(0)" a.(0)
-
+        let cp = a |> map_2d primal |> map_2d unpack_flt |> reshape_2d |> pack_arr in
+        DR (cp, ref (zero cp), Init_2d_D (a, n, m), ref 0, ai)
+      | _                  -> error_uniop "init_2d a.(0).(0)" a.(0).(0)
 
 
     (* NOTE: these fucntions are for neural network. There are many restrictions
@@ -1258,7 +1259,8 @@ module Make
                 | Add_Row_C_D (_, b, _)    -> reset (b :: t)
                 | Get_Row_D (a, _)         -> reset (a :: t)
                 | Of_Rows_D a              -> reset (List.append (Array.to_list a) t)
-                | Init_2d_D a              -> reset (List.append (Array.to_list a) t)
+                | Init_2d_D (a, _, _)      -> reset (Array.fold_left (fun accu -> Array.fold_left (fun accu' x -> x :: accu') accu) [] a
+                                                     |> List.rev |> (fun li -> List.append li t))
                 | Conv1D_D_D (a, b, _)     -> reset (a :: b :: t)
                 | Conv1D_D_C (a, _, _)     -> reset (a :: t)
                 | Conv1D_C_D (_, b, _)     -> reset (b :: t)
@@ -1384,7 +1386,10 @@ module Make
                 | Add_Row_C_D (a, b, i)    -> push ((get_row !aa i, b) :: t)
                 | Get_Row_D (a, i)         -> (adjref a) := add_row (adjval a) !aa i; push ((zero a, a) :: t)
                 | Of_Rows_D a              -> push (t |> List.append (a |> Array.to_list |> List.mapi (fun i v -> (get_row !aa i, v))))
-                | Init_2d_D a              -> push (t |> List.append (a |> Array.to_list |> List.mapi (fun i v -> (get_row !aa i, v))))
+                | Init_2d_D (a, n, m)      -> push (Array.fold_left (fun accu -> Array.fold_left (fun accu' x -> x :: accu') accu) [] a 
+                                                    |> List.rev 
+                                                    |> List.mapi (fun k v -> (get_item !aa Pervasives.(k/m) Pervasives.(k mod m), v))
+                                                    |> (fun li -> List.append t li))
                 | Conv1D_D_D (a, b, s)     -> push ((conv1d_backward_input a b s !aa, a) :: (conv1d_backward_kernel a b s !aa, b) :: t)
                 | Conv1D_D_C (a, b, s)     -> push ((conv1d_backward_input a b s !aa, a) :: t)
                 | Conv1D_C_D (a, b, s)     -> push ((conv1d_backward_kernel a b s !aa, b) :: t)
@@ -1725,7 +1730,7 @@ module Make
                 | Add_Row_C_D (a, b, i)    -> "Add_Row_C_D", [a; b]
                 | Get_Row_D (a, i)         -> "Get_Row_D", [ a ]
                 | Of_Rows_D a              -> "Of_Rows_D", (Array.to_list a)
-                | Init_2d_D a              -> "Init_2d_D", (Array.to_list a)
+                | Init_2d_D (a, _, _)      -> "Init_2d_D", (Array.fold_left (fun accu -> Array.fold_left (fun accu' x -> x :: accu') accu) [] a |> List.rev)
                 | Conv1D_D_D (a, b, s)     -> "Conv1D_D_D", [a; b]
                 | Conv1D_D_C (a, b, s)     -> "Conv1D_D_C", [a; b]
                 | Conv1D_C_D (a, b, s)     -> "Conv1D_C_D", [a; b]
