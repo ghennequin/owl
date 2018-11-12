@@ -302,6 +302,10 @@ module type Sig = sig
   val dot : arr -> arr -> arr
 
   val inv : arr -> arr
+  
+  val fft : arr -> arr
+  
+  val ifft : arr -> arr
 
   val trace : arr -> elt
 
