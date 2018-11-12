@@ -189,6 +189,8 @@ module Make
           | CopyColTo                                     -> failwith "CopyColTo"
           | Dot (transa, transb, alpha, beta)             -> _eval_map_01 x (fun ~out x -> A.dot_ ~transa ~transb ~alpha:(unpack_elt alpha) ~beta:(unpack_elt beta) ~c:out x.(0) x.(1))
           | Inv                                           -> _eval_map_00 x (fun x -> A.inv x.(0))
+          | Fft                                           -> _eval_map_00 x (fun x -> A.fft x.(0))
+          | Ifft                                          -> _eval_map_00 x (fun x -> A.ifft x.(0))
           | Trace                                         -> _eval_map_06 x A.trace
           | Transpose axis                                -> _eval_map_01 x (fun ~out x -> A.transpose_ ~out ~axis x.(0))
           | ToRows                                        -> failwith "ToRows"

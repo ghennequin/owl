@@ -208,6 +208,8 @@ module Make
     | CopyColTo                                      -> failwith "CopyColTo"
     | Dot (_transa, _transb, _alpha, _beta)          -> split_00 p
     | Inv                                            -> split_00 p
+    | Fft                                            -> split_00 p (* no idea what I'm doin' *)
+    | Ifft                                           -> split_00 p (* same here *)
     | Trace                                          -> split_01 p
     | Transpose _axis                                -> split_00 p
     | ToRows                                         -> failwith "ToRows"

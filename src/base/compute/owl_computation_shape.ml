@@ -384,6 +384,8 @@ module Make
     | Rows i                                         -> _infer_shape_09 input_shapes 0 Array.(length i)
     | Dot (_transa, _transb, _alpha, _beta)          -> _infer_shape_19 input_shapes
     | Inv                                            -> _infer_shape_01 input_shapes
+    | Fft                                            -> _infer_shape_01 input_shapes
+    | Ifft                                           -> _infer_shape_01 input_shapes
     | Trace                                          -> _infer_shape_00 input_shapes
     | Transpose axis                                 -> _infer_shape_18 input_shapes axis
     | ToRows                                         -> failwith "_infer_shape:ToRows not implemented"

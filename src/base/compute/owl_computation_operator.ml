@@ -8,8 +8,8 @@ open Owl_types
 (* Functor of making Lazy module of different number types *)
 
 module Make
-  (Symbol : Owl_computation_symbol_sig.Sig)
-  = struct
+    (Symbol : Owl_computation_symbol_sig.Sig)
+= struct
 
   module Symbol = Symbol
 
@@ -460,6 +460,10 @@ module Make
   let copy_col_to x _y _j = make_then_connect CopyColTo [|arr_to_node x|] |> ignore
 
   let inv x = make_then_connect Inv [|arr_to_node x|] |> node_to_arr
+
+  let fft x = make_then_connect Fft [|arr_to_node x|] |> node_to_arr
+
+  let ifft x = make_then_connect Ifft [|arr_to_node x|] |> node_to_arr
 
   let trace x = make_then_connect Trace [|arr_to_node x|] |> node_to_elt
 

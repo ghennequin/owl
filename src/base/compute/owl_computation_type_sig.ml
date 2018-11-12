@@ -205,6 +205,8 @@ module type Sig = sig
     | CopyColTo
     | Dot                           of bool * bool * elt * elt
     | Inv
+    | Fft
+    | Ifft
     | Trace
     | Transpose                     of int array
     | ToRows

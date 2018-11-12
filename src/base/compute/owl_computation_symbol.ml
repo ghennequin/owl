@@ -176,6 +176,8 @@ module Make
     | CopyColTo                                      -> "CopyColTo"
     | Dot (_transa, _transb, _alpha, _beta)          -> "Dot"
     | Inv                                            -> "Inv"
+    | Fft                                            -> "Fft"
+    | Ifft                                           -> "Ifft"
     | Trace                                          -> "Trace"
     | Transpose _i                                   -> "Transpose"
     | ToRows                                         -> "ToRows"
