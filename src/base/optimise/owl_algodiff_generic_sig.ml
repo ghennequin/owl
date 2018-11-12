@@ -80,6 +80,12 @@ module type Sig = sig
     val inv : t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
+    val fft : t -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
+    val ifft : t -> t
+    (** Refer to :doc:`owl_dense_ndarray_generic` *)
+
     val neg : t -> t
     (** Refer to :doc:`owl_dense_ndarray_generic` *)
 
@@ -264,8 +270,8 @@ module type Sig = sig
 
 
   (* Simple wrappers of matrix and ndarray module, so you don't have to pack
-    and unpack stuff all the time. Some operations just interface to those
-    already defined in the Maths module. *)
+     and unpack stuff all the time. Some operations just interface to those
+     already defined in the Maths module. *)
 
   module Mat : sig
 
@@ -351,13 +357,13 @@ module type Sig = sig
 
   val diff : (t -> t) -> t -> t
   (**
-``diff f x`` returns the exat derivative of a function ``f : scalar -> scalar``
-at point ``x``. Simply calling ``diff f`` will return its derivative function ``g``
-of the same type, i.e. ``g : scalar -> scalar``.
+     ``diff f x`` returns the exat derivative of a function ``f : scalar -> scalar``
+     at point ``x``. Simply calling ``diff f`` will return its derivative function ``g``
+     of the same type, i.e. ``g : scalar -> scalar``.
 
-Keep calling this function will give you higher-order derivatives of ``f``, i.e.
-``f |> diff |> diff |> diff |> ...``
-   *)
+     Keep calling this function will give you higher-order derivatives of ``f``, i.e.
+     ``f |> diff |> diff |> diff |> ...``
+  *)
 
   val diff' : (t -> t) -> t -> t * t
   (** similar to ``diff``, but return ``(f x, diff f x)``. *)
@@ -376,8 +382,8 @@ Keep calling this function will give you higher-order derivatives of ``f``, i.e.
 
   val jacobianv : (t -> t) -> t -> t -> t
   (**
-jacobian vector product of ``f`` : (vector -> vector) at ``x`` along ``v``,
-forward ad. Namely, it calcultes ``(jacobian x) v``
+     jacobian vector product of ``f`` : (vector -> vector) at ``x`` along ``v``,
+     forward ad. Namely, it calcultes ``(jacobian x) v``
   *)
 
   val jacobianv' : (t -> t) -> t -> t -> t * t
@@ -385,8 +391,8 @@ forward ad. Namely, it calcultes ``(jacobian x) v``
 
   val jacobianTv : (t -> t) -> t -> t -> t
   (**
-transposed jacobian vector product of ``f : (vector -> vector)`` at ``x``
-along ``v``, backward ad. Namely, it calculates ``transpose ((jacobianv f x v))``.
+     transposed jacobian vector product of ``f : (vector -> vector)`` at ``x``
+     along ``v``, backward ad. Namely, it calculates ``transpose ((jacobianv f x v))``.
   *)
 
   val jacobianTv' : (t -> t) -> t -> t -> t * t
@@ -400,9 +406,9 @@ along ``v``, backward ad. Namely, it calculates ``transpose ((jacobianv f x v))`
 
   val hessianv : (t -> t) -> t -> t -> t
   (**
-hessian vector product of ``f`` : (scalar -> scalar) at ``x`` along ``v``.
-Namely, it calculates ``(hessian x) v``.
-   *)
+     hessian vector product of ``f`` : (scalar -> scalar) at ``x`` along ``v``.
+     Namely, it calculates ``(hessian x) v``.
+  *)
 
   val hessianv' : (t -> t) -> t -> t -> t * t
   (** similar to ``hessianv``, but return ``(f x, hessianv f x v)``. *)
@@ -498,16 +504,16 @@ Namely, it calculates ``(hessian x) v``.
 
   val to_trace : t list -> string
   (**
-``to_trace [t0; t1; ...]`` outputs the trace of computation graph on the
-terminal in a human-readable format.
-   *)
+     ``to_trace [t0; t1; ...]`` outputs the trace of computation graph on the
+     terminal in a human-readable format.
+  *)
 
   val to_dot : t list -> string
   (**
-``to_dot [t0; t1; ...]`` outputs the trace of computation graph in the dot
-file format which you can use other tools further visualisation, such as
-Graphviz.
-   *)
+     ``to_dot [t0; t1; ...]`` outputs the trace of computation graph in the dot
+     file format which you can use other tools further visualisation, such as
+     Graphviz.
+  *)
 
   val pp_num : Format.formatter -> t -> unit
   (** ``pp_num t`` pretty prints the abstract number used in ``Algodiff``. *)
